@@ -5,7 +5,7 @@ from base import *
 parser = argparse.ArgumentParser(description='Plex Debrid')
 
 parser.add_argument('--config-dir', '-c', type=str, default='.', help='Configuration directory')
-parser.add_argument('--service', '-s', default=True, action='store_true', help='Run in service mode')
+parser.add_argument('--service', '-s', default=False, action='store_true', help='Run in service mode')
 
 args = parser.parse_args()
 

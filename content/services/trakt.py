@@ -4,12 +4,14 @@ from base import *
 from content import classes
 from ui.ui_print import *
 
+from typing import Optional
 from pydantic_settings import BaseSettings
 
 # Get Trakt oauth details from env
+# TODO: Move this maybe to another file, making ..env universal
 class Settings(BaseSettings):
-    client_id: str
-    client_secret: str
+    trakt_client_id: Optional[str] = None
+    trakt_client_secret: Optional[str] = None
 
     class Config:
         env_file = ".env"
@@ -18,8 +20,8 @@ class Settings(BaseSettings):
 trakt = Settings()
 
 name = 'Trakt'
-client_id = trakt.client_id
-client_secret = trakt.client_secret
+trakt_client_id = trakt.trakt_client_id
+trakt_client_secret = trakt.trakt_client_secret
 lists = []
 users = []
 current_user = ["", ""]
@@ -159,7 +161,7 @@ def get(url):
     try:
         response = session.get(url, headers={
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
-            'Content-type': "application/json", "trakt-api-key": client_id, "trakt-api-version": "2",
+            'Content-type': "application/json", "trakt-api-key": trakt_client_id, "trakt-api-version": "2",
             "Authorization": "Bearer " + current_user[1]})
         logerror(response)
         header = response.headers
@@ -173,7 +175,7 @@ def post(url, data):
     try:
         response = session.post(url, headers={
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
-            'Content-type': "application/json", "trakt-api-key": client_id, "trakt-api-version": "2",
+            'Content-type': "application/json", "trakt-api-key": trakt_client_id, "trakt-api-version": "2",
             "Authorization": "Bearer " + current_user[1]}, data=data)
         logerror(response)
         response = json.loads(response.content, object_hook=lambda d: SimpleNamespace(**d))
@@ -195,7 +197,7 @@ def post2(url, data):
 
 def oauth(code=""):
     if code == "":
-        response = post2('https://api.trakt.tv/oauth/device/code', json.dumps({'client_id': client_id}))
+        response = post2('https://api.trakt.tv/oauth/device/code', json.dumps({'trakt_client_id': trakt_client_id}))
         if not response == None:
             return response.device_code, response.user_code
         else:
@@ -205,7 +207,7 @@ def oauth(code=""):
         response = None
         while response == None:
             response = post2('https://api.trakt.tv/oauth/device/token', json.dumps(
-                {'code': code, 'client_id': client_id, 'client_secret': client_secret}))
+                {'code': code, 'trakt_client_id': trakt_client_id, 'trakt_client_secret': client_secret}))
             time.sleep(1)
         return response.access_token
 

@@ -400,3 +400,9 @@ settings.json
 
 venv*/
 .idea/
+
+
+## python3 venv wrksp
+lib/**
+lib64/**
+pyvenv.cfg
